@@ -35,6 +35,7 @@ module.exports = (sequelize, DataTypes) => {
 
       user.password = hash;
       user.userId = uuid();
+      user.email = user.email.toLowerCase();
     } catch (err) {
      throw new Error();
     }
