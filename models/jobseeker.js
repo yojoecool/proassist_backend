@@ -1,14 +1,14 @@
 'use strict';
-const { Model } = require('sequelize');
+module.exports = (sequelize, DataTypes) => {
+  const JobSeeker = sequelize.define('JobSeeker', {
+    firstName: DataTypes.STRING,
+    lastName: DataTypes.STRING,
+    userId: DataTypes.UUID,
+  }, {});
 
-class JobSeeker extends Model {}
+  JobSeeker.associate = (models) => {
+    JobSeeker.belongsTo(models.User, { foreignKey: 'userId' });
+  };
 
-JobSeeker.init({
-  firstName: DataTypes.STRING,
-  lastName: DataTypes.STRING,
-  userId: DataTypes.UUID,
-}, {});
-
-JobSeeker.associate = (models) => {
-  JobSeeker.belongsTo(models.User, { foreignKey: 'userId' });
+  return JobSeeker;
 };

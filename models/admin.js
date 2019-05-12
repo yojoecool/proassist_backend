@@ -1,15 +1,14 @@
 'use strict';
-const { Model } = require('sequelize');
-
-class Admin extends Model {}
-
-Admin.init({
+module.exports = (sequelize, DataTypes) => {
+  const Admin = sequelize.define('Admin', {
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
     userId: DataTypes.UUID,
-  },
-}, {});
+  }, {});
 
-Admin.associate = (models) => {
-  Admin.belongsTo(models.User, { foreignKey: 'userId' });
+  Admin.associate = (models) => {
+    Admin.belongsTo(models.User, { foreignKey: 'userId' });
+  };
+
+  return Admin;
 };
