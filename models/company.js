@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
 
   Company.associate = (models) => {
     Company.belongsTo(models.User, { foreignKey: 'userId' });
+    Company.hasMany(models.Job, { foreignKey: 'companyId', sourceKey: 'userId' });
   };
 
   return Company;
