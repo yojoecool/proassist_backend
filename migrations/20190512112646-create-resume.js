@@ -1,27 +1,31 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Admins', {
+    return queryInterface.createTable('Resumes', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
         type: Sequelize.INTEGER,
       },
-      firstName: {
-        type: Sequelize.STRING,
-      },
-      lastName: {
-        type: Sequelize.STRING,
-      },
       userId: {
         type: Sequelize.UUID,
         allowNull: false,
         unique: true,
         references: {
-          model: 'Users',
-          key: 'id',
+          model: 'JobSeekers',
+          key: 'userId',
         },
+      },
+      s3id: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
+      },
+      url: {
+        type: Sequelize.STRING,
+        allowNull: false,
+        unique: true,
       },
       createdAt: {
         allowNull: false,
@@ -34,6 +38,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Admins');
+    return queryInterface.dropTable('Resumes');
   }
 };
