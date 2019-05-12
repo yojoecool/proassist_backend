@@ -11,10 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       field: 'id',
     },
     password: DataTypes.STRING,
-    facebookId: {
-      type: DataTypes.STRING,
-      field: 'facebook_id',
-    },
+    facebookId: DataTypes.STRING,
     email: {
       type: DataTypes.STRING,
       validate: {
@@ -24,7 +21,6 @@ module.exports = (sequelize, DataTypes) => {
     userType: {
       type: DataTypes.ENUM,
       values: userTypes,
-      field: 'user_type',
     },
   }, {});
 

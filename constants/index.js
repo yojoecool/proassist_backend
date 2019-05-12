@@ -1,3 +1,3 @@
 module.exports = {
-   userTypes: ['admin', 'job_seeker', 'company'],
+   userTypes: ['Admin', 'JobSeeker', 'Company'],
 };

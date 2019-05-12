@@ -12,7 +12,7 @@ module.exports = {
       password: {
         type: Sequelize.STRING
       },
-      facebook_id: {
+      facebookId: {
         type: Sequelize.STRING
       },
       email: {
@@ -20,7 +20,7 @@ module.exports = {
         allowNull: false,
         unique: true,
       },
-      user_type: {
+      userType: {
         type: Sequelize.ENUM(userTypes),
         allowNull: false,
       },
