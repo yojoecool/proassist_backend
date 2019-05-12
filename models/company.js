@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const Company = sequelize.define('Company', {
     name: DataTypes.STRING,
     poc: DataTypes.JSONB,
-    userId: DataTypes.UUID,
+    userId: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
   }, {});
 
   Company.associate = (models) => {

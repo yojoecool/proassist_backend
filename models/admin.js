@@ -3,7 +3,10 @@ module.exports = (sequelize, DataTypes) => {
   const Admin = sequelize.define('Admin', {
     firstName: DataTypes.STRING,
     lastName: DataTypes.STRING,
-    userId: DataTypes.UUID,
+    userId: {
+      type: DataTypes.UUID,
+      primaryKey: true,
+    },
   }, {});
 
   Admin.associate = (models) => {
