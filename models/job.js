@@ -7,7 +7,7 @@ module.exports = (sequelize, DataTypes) => {
   const Job = sequelize.define('Job', {
     jobId: {
       type: DataTypes.UUID,
-      field: 'id',
+      primaryKey: true,
     },
     companyId: DataTypes.UUID,
     description: DataTypes.STRING,
@@ -30,11 +30,20 @@ module.exports = (sequelize, DataTypes) => {
     qualifications: DataTypes.STRING,
   }, {});
 
-  Job.beforeCreate(job => job.id = uuid());
+  Job.beforeCreate(job => job.jobId = uuid());
 
   Job.associate = (models) => {
-    Job.belongsTo(models.Company, { foreignKey: 'companyId', targetKey: 'userId' });
-    Job.belongsToMany(models.JobSeeker, { through: 'JobsSaved', foreignKey: 'jobId', targetKey: 'id' });
+    Job.belongsTo(models.Company, { foreignKey: 'companyId' });
+    Job.belongsToMany(models.JobSeeker, {
+      through: 'JobsSaved',
+      foreignKey: 'jobId',
+      as: 'SavedBy',
+    });
+    Job.belongsToMany(models.JobSeeker, {
+      through: 'JobsApplied',
+      foreignKey: 'jobId',
+      as: 'AppliedBy',
+    });
   };
 
   return Job;

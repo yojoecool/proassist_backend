@@ -14,8 +14,13 @@ module.exports = (sequelize, DataTypes) => {
     JobSeeker.hasOne(models.Resume, { foreignKey: 'userId', sourceKey: 'userId' });
     JobSeeker.belongsToMany(models.Job, {
       through: 'JobsSaved',
-      foreignKey: 'userId',
+      foreignKey: 'jobSeekerId',
       as: 'JobSaved',
+    });
+    JobSeeker.belongsToMany(models.Job, {
+      through: 'JobsApplied',
+      foreignKey: 'jobSeekerId',
+      as: 'JobApplied',
     });
   };
 

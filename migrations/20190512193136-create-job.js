@@ -4,7 +4,7 @@ const { regions, states, jobTypes } = require('../constants');
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Jobs', {
-      id: {
+      jobId: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,

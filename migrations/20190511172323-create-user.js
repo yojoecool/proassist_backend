@@ -4,7 +4,7 @@ const { userTypes } = require('../constants');
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.createTable('Users', {
-      id: {
+      userId: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,

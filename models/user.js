@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define('User', {
     userId: {
       type: DataTypes.UUID,
-      field: 'id',
+      primaryKey: true,
     },
     password: DataTypes.STRING,
     facebookId: DataTypes.STRING,

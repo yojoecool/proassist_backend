@@ -1,12 +1,14 @@
 'use strict';
+const { jobStatus } = require('../constants');
+
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('JobsSaved', {
+    return queryInterface.createTable('JobsApplied', {
       id: {
         allowNull: false,
         autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
       },
       jobSeekerId: {
         type: Sequelize.UUID,
@@ -24,17 +26,21 @@ module.exports = {
           key: 'jobId',
         },
       },
+      status: {
+        type: Sequelize.ENUM(jobStatus),
+        allowNull: false,
+      },
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
-      }
+        type: Sequelize.DATE,
+      },
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('JobsSaved');
+    return queryInterface.dropTable('JobsApplied');
   }
 };

@@ -10,4 +10,5 @@ module.exports = {
     'TX', 'UT', 'VT', 'VI', 'VA', 'WA', 'WV', 'WI', 'WY',
   ],
   regions: ['Northwest', 'Southwest', 'Midwest', 'Northeast', 'Southeast'],
+  jobStatus: ['Applied', 'Rejected'],
 };
