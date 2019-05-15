@@ -26,10 +26,13 @@ module.exports = (sequelize, DataTypes) => {
 
   User.beforeCreate(async (user) => {
     try {
-      const salt = await bcrypt.genSalt(10);
-      const hash = await bcrypt.hash(user.password, salt);
+      if (user.password !== null) {
+        const salt = await bcrypt.genSalt(10);
+        const hash = await bcrypt.hash(user.password, salt);
 
-      user.password = hash;
+        user.password = hash;
+      }
+
       user.userId = uuid();
       user.email = user.email.toLowerCase();
     } catch (err) {
