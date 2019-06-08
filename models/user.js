@@ -46,7 +46,7 @@ module.exports = (sequelize, DataTypes) => {
     User.hasOne(models.Admin);
   };
 
-  User.prototype.validPassword = async (password) => {
+  User.prototype.validPassword = async function(password) {
     return bcrypt.compare(password, this.password);
   };
 
