@@ -1,5 +1,30 @@
-var express = require('express');
-var router = express.Router();
+require('dotenv').config();
+const express = require('express');
+const fs = require('fs');
+const AWS = require('aws-sdk');
+const path = require('path');
+const multer  = require('multer');
+const multerS3 = require('multer-s3')
+
+const s3 = new AWS.S3({
+  accessKeyId: process.env.AWS_ACCESS,
+  secretAccessKey: process.env.AWS_SECRET,
+  region: 'us-east-1'
+});
+
+const storage =  multerS3({
+  s3,
+  bucket: 'proassist-test',
+  metadata: function (req, file, cb) {
+    cb(null, {fieldName: file.fieldname});
+  },
+  key: function (req, file, cb) {
+    cb(null, file.originalname) // + path.extname(file.originalname))
+  }
+});
+
+const upload = multer({ storage });
+const router = express.Router();
 
 const { User, Company, Job, JobSeeker } = require('../models');
 
@@ -33,7 +58,25 @@ router.get('/test', async (req, res, next) => {
 });
 
 router.get('/test2', async (req, res) => {
-    res.send(await newJob.getUsersApplied());
+  res.send(await newJob.getUsersApplied());
+});
+
+router.get('/somefile', (req, res) => {
+  const params = { Bucket: 'proassist-test', Key: 'file.pdf' };
+
+  try {
+    res.attachment('file.pdf');
+    const fileStream = s3.getObject(params).createReadStream();
+    fileStream.pipe(res);
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+});
+
+router.post('/s3pdf', upload.single('file'), async (req, res) => {
+  res.send('success');
 });
 
 module.exports = router;
