@@ -59,7 +59,6 @@ router.get('/test', async (req, res, next) => {
 });
 
 router.get('/getResume', verifyUser, (req, res) => {
-  console.log(req.locals.userId === req.query.user);
   if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
     res.status(403);
     res.json({ success: false });
