@@ -10,6 +10,10 @@ module.exports = (req, res, next) => {
     }
     const authArray = req.headers.authorization.split(' ');
     if (authArray.length === 2 && authArray[0] === 'Bearer') {
+      if (authArray[1] === 'null') {
+        throw new Error('No Token');
+      }
+
       const decoded = jwt.verify(authArray[1], APP_SECRET);
 
       if (!req.locals) {
@@ -30,7 +34,12 @@ module.exports = (req, res, next) => {
       res.json({
         error: 'Either your token has expired or you are not authorized to access this resouce.'
       });
-    } else {
+    } else if (err.message === 'No Token') {
+      res.status(404);
+      res.json({
+        error: 'No token included with request.'
+      });
+    }else {
       res.status(500);
       res.json({ error: 'There was an error processing the request.' });
     }
