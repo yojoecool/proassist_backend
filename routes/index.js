@@ -5,6 +5,7 @@ const AWS = require('aws-sdk');
 const path = require('path');
 const multer  = require('multer');
 const multerS3 = require('multer-s3');
+const { verifyUser } = require('../middleware');
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS,
@@ -19,7 +20,7 @@ const storage =  multerS3({
     cb(null, {fieldName: file.fieldname});
   },
   key: function (req, file, cb) {
-    cb(null, file.originalname) // + path.extname(file.originalname))
+    cb(null, req.locals.userId + path.extname(file.originalname));
   }
 });
 
@@ -57,12 +58,15 @@ router.get('/test', async (req, res, next) => {
   }
 });
 
-router.get('/test2', async (req, res) => {
-  res.send(await newJob.getUsersApplied());
-});
+router.get('/getResume', verifyUser, (req, res) => {
+  console.log(req.locals.userId === req.query.user);
+  if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
+    res.status(403);
+    res.json({ success: false });
+    return;
+  }
 
-router.get('/somefile', (req, res) => {
-  const params = { Bucket: 'proassist-test', Key: 'file.pdf' };
+  const params = { Bucket: 'proassist-test', Key: req.query.user + '.pdf' };
 
   try {
     res.attachment('file.pdf');
@@ -75,7 +79,7 @@ router.get('/somefile', (req, res) => {
   }
 });
 
-router.post('/s3pdf', upload.single('file'), async (req, res) => {
+router.post('/uploadResume', verifyUser, upload.single('file'), async (req, res) => {
   res.send('success');
 });
 
