@@ -9,9 +9,9 @@ const createJwt = (user) => {
     userId: user.dataValues.userId,
     email: user.dataValues.email,
     userType: user.dataValues.userType
-  }, APP_SECRET, {
-    expiresIn: '8h'
-  });
+  },
+  APP_SECRET,
+  { expiresIn: '24h' });
 
   return token;
 };
