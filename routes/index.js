@@ -64,7 +64,8 @@ router.get('/getResume', verifyUser, (req, res) => {
     return;
   }
 
-  const params = { Bucket: 'proassist-test', Key: req.query.user + '.pdf' };
+  const { BUCKET_NAME } = process.env;
+  const params = { Bucket: BUCKET_NAME, Key: req.query.user + '.pdf' };
 
   try {
     res.attachment('file.pdf');
