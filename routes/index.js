@@ -6,6 +6,7 @@ const path = require('path');
 const multer  = require('multer');
 const multerS3 = require('multer-s3');
 const { verifyUser } = require('../middleware');
+const { User, Company, Job, JobSeeker } = require('../models');
 
 const s3 = new AWS.S3({
   accessKeyId: process.env.AWS_ACCESS,
@@ -26,8 +27,6 @@ const storage =  multerS3({
 
 const upload = multer({ storage });
 const router = express.Router();
-
-const { User, Company, Job, JobSeeker } = require('../models');
 
 /* GET home page. */
 router.get('/test', async (req, res, next) => {
