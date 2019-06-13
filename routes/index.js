@@ -57,7 +57,7 @@ router.get('/test', async (req, res, next) => {
   }
 });
 
-router.get('/getResume', verifyUser, (req, res) => {
+router.get('/getResume', verifyUser, async (req, res) => {
   if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
     res.status(403);
     res.json({ success: false });
@@ -68,11 +68,24 @@ router.get('/getResume', verifyUser, (req, res) => {
   const params = { Bucket: BUCKET_NAME, Key: req.query.user + '.pdf' };
 
   try {
+    const metadata = await s3.headObject(params).promise();
+
     res.attachment('file.pdf');
-    const fileStream = s3.getObject(params).createReadStream();
+    const object = s3.getObject(params);
+
+    const fileStream = object.createReadStream();
     fileStream.pipe(res);
   } catch (err) {
     console.log(err);
+
+    if (err.code === 'NotFound') {
+      res.status(404);
+      res.json({
+        error: 'File Not Found'
+      });
+      return;
+    }
+
     res.status(500);
     res.json({ success: false });
   }
