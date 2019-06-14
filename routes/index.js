@@ -16,7 +16,7 @@ const s3 = new AWS.S3({
 
 const storage =  multerS3({
   s3,
-  bucket: 'proassist-test',
+  bucket: process.env.BUCKET_NAME,
   metadata: function (req, file, cb) {
     cb(null, {fieldName: file.fieldname});
   },
