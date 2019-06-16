@@ -16,6 +16,8 @@ const createJwt = (user) => {
   return token;
 };
 
+//add function to create new user (update 2 tables user+Js or user+co)
+
 const validateUser = async (email, password) => {
   const user = await User.findOne({ where: { email }});
   if (!user) {
