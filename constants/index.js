@@ -11,4 +11,5 @@ module.exports = {
   ],
   regions: ['Northwest', 'Southwest', 'Midwest', 'Northeast', 'Southeast'],
   jobStatus: ['Applied', 'Rejected'],
+  companyStatus: ['Pending', 'Active', 'Rejected']
 };
