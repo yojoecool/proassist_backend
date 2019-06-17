@@ -17,6 +17,11 @@ router.get('/test', async (req, res, next) => {
       companyId: stuff.userId, description: 'test', skills: ['test'], title: 'test Title',
       city: 'Testington', state: 'AL', active: true, region: 'Southeast', type: 'FullTime'
     });
+
+    const newJob2 = await Job.create({
+      companyId: stuff.userId, description: 'counting churros', skills: ['basic math'], title: 'Churro Counter',
+      city: 'McLean', state: 'TX', active: true, region: 'Northeast', type: 'FullTime'
+    });
     
     await againAgain.addJobSaved(newJob);
     await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
