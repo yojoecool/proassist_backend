@@ -47,8 +47,25 @@ const getResumeStream = async (userId) => {
   return fileStream;
 };
 
+const notifyAdmins = async (message, subject) => {
+  const sns = new AWS.SNS({
+    accessKeyId: process.env.AWS_ACCESS,
+    secretAccessKey: process.env.AWS_SECRET,
+    region: 'us-east-1'
+  });
+
+  const params = {
+    Message: message,
+    TopicArn: process.env.SNS_TOPIC,
+    Subject: subject
+  };
+
+  await sns.publish(params).promise();
+};
+
 module.exports = {
   createJwt,
   validateUser,
-  getResumeStream
+  getResumeStream,
+  notifyAdmins
 };
