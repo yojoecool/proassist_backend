@@ -48,6 +48,7 @@ const registerUser = async (fields) => {
       await Company.create({
         name: fields.companyName,
         poc,
+        companyStatus: 'Pending',
         userId: createUser.userId
       })
       break;
