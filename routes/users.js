@@ -21,6 +21,23 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.post('/register', async (req, res) => {
+  try {
+    console.log(req.body);
+    await userFuncs.registerUser(req.body)
+    res.json({ success: true });
+  } catch (err) {
+    console.log(err);
+    if (err.message === 'email already exists') {
+      res.status(409);
+      res.json({ success: false });
+    } else {
+      res.status(500);
+      res.json({ success: false });
+    }
+  }
+});
+
 router.get('/getResume', verifyUser, async (req, res) => {
   if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
     res.status(403);
