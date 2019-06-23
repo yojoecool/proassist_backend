@@ -1,7 +1,7 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { User, JobSeeker, Company, Admin } = require('../models');
 
 const createJwt = (user) => {
   const { APP_SECRET } = process.env;
@@ -63,9 +63,38 @@ const notifyAdmins = async (message, subject) => {
   await sns.publish(params).promise();
 };
 
+const getUserInfo = async (userId) => {
+  const user = await User.findOne({ where: { userId } });
+  if (!user) {
+    throw new Error('User not found');
+  }
+
+  const { userType, email } = user.dataValues;
+  let returnValues = { userType, email };
+
+  switch(userType) {
+    case 'Admin':
+    case 'JobSeeker':
+      const jobSeeker = await JobSeeker.findOne({ where: { userId } });
+      const { firstName, lastName } = jobSeeker.dataValues;
+      returnValues = { ...returnValues, firstName, lastName };
+      break;
+    case 'Company':
+      const company = await Company.findOne({ where: { userId } });
+      const { name, poc } = company.dataValues;
+      returnValues = { ...returnValues, name, poc };
+      break;
+    default:
+      break;
+  }
+
+  return returnValues;
+}
+
 module.exports = {
   createJwt,
   validateUser,
   getResumeStream,
-  notifyAdmins
+  notifyAdmins,
+  getUserInfo
 };
