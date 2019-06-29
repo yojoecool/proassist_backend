@@ -8,10 +8,10 @@ const router = express.Router();
 router.get('/test', async (req, res, next) => {
   try {
     const stuff = await User.create({ email: 'test@test.com', password: 'test', userType: 'Company' });
-    const moreStuff = await Company.create({ userId: stuff.userId, name: 'test', lastName: 'anotherTest', poc: {} });
+    const moreStuff = await Company.create({ userId: stuff.userId, name: 'test', lastName: 'anotherTest', poc: {}, companyStatus: 'Active' });
 
     const again = await User.create({ email: 'test2@test2.com', password: 'test', userType: 'JobSeeker' });
-    const againAgain = await JobSeeker.create({ userId: again.userId, firstName: 'test', lastName: 'test', userType: 'Company' });
+    const againAgain = await JobSeeker.create({ userId: again.userId, firstName: 'test', lastName: 'test' });
 
     const newJob = await Job.create({
       companyId: stuff.userId, description: 'test', skills: ['test'], title: 'test Title',
