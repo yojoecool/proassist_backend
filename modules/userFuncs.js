@@ -17,6 +17,53 @@ const createJwt = (user) => {
   return token;
 };
 
+const registerUser = async (fields) => {
+  const emailAlreadyExists = await User.findOne({ where: { email: fields.email }});
+  if (emailAlreadyExists) {
+    throw new Error('email already exists');
+  }
+
+  const createUser = await User.create({
+    password: fields.password,
+    facebookId: "",
+    email: fields.email,
+    userType: fields.userType
+  })
+
+  switch(fields.userType) {
+    case "JobSeeker":
+      await JobSeeker.create({
+        firstName: fields.firstName,
+        lastName: fields.lastName,
+        userId: createUser.userId
+      })
+      break;
+    case "Company":
+      const poc = {
+        firstName: fields.firstName,
+        lastName: fields.lastName,
+        email: fields.pocEmail,
+        phoneNumber: fields.phoneNumber
+      }
+      await Company.create({
+        name: fields.companyName,
+        poc,
+        companyStatus: 'Pending',
+        userId: createUser.userId
+      })
+      break;
+    case "Admin":
+      await Admin.create({
+        firstName: fields.firstName,
+        lastName: fields.lastName,
+        userId: createUser.userId
+      })
+      break;
+    default: 
+      throw new Error('invalid userType');
+  }
+}
+
 const validateUser = async (email, password) => {
   const user = await User.findOne({ where: { email }});
   if (!user) {
@@ -93,6 +140,7 @@ const getUserInfo = async (userId) => {
 
 module.exports = {
   createJwt,
+  registerUser,
   validateUser,
   getResumeStream,
   notifyAdmins,
