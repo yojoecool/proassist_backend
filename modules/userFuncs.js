@@ -17,6 +17,22 @@ const createJwt = (user) => {
   return token;
 };
 
+const notifyAdmins = async (message, subject) => {
+  const sns = new AWS.SNS({
+    accessKeyId: process.env.AWS_ACCESS,
+    secretAccessKey: process.env.AWS_SECRET,
+    region: 'us-east-1'
+  });
+
+  const params = {
+    Message: message,
+    TopicArn: process.env.SNS_TOPIC,
+    Subject: subject
+  };
+
+  await sns.publish(params).promise();
+};
+
 const registerUser = async (fields) => {
   const emailAlreadyExists = await User.findOne({ where: { email: fields.email }});
   if (emailAlreadyExists) {
@@ -36,7 +52,7 @@ const registerUser = async (fields) => {
         firstName: fields.firstName,
         lastName: fields.lastName,
         userId: createUser.userId
-      })
+      });
       break;
     case "Company":
       const poc = {
@@ -44,20 +60,26 @@ const registerUser = async (fields) => {
         lastName: fields.lastName,
         email: fields.pocEmail,
         phoneNumber: fields.phoneNumber
-      }
+      };
+
       await Company.create({
         name: fields.companyName,
         poc,
         companyStatus: 'Pending',
         userId: createUser.userId
-      })
+      });
+
+      await notifyAdmins(
+        'A new company has registered! Navigate to <Webiste URL> to approve or deny.',
+        'New Company Registered'
+      );
       break;
     case "Admin":
       await Admin.create({
         firstName: fields.firstName,
         lastName: fields.lastName,
         userId: createUser.userId
-      })
+      });
       break;
     default: 
       throw new Error('invalid userType');
@@ -92,22 +114,6 @@ const getResumeStream = async (userId) => {
 
   const fileStream = s3.getObject(params).createReadStream();
   return fileStream;
-};
-
-const notifyAdmins = async (message, subject) => {
-  const sns = new AWS.SNS({
-    accessKeyId: process.env.AWS_ACCESS,
-    secretAccessKey: process.env.AWS_SECRET,
-    region: 'us-east-1'
-  });
-
-  const params = {
-    Message: message,
-    TopicArn: process.env.SNS_TOPIC,
-    Subject: subject
-  };
-
-  await sns.publish(params).promise();
 };
 
 const getUserInfo = async (userId) => {
