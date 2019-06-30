@@ -1,4 +1,5 @@
 const { Company, Job } = require('../models');
+const { statesToRegion } = require('../constants');
 
 const getProfile = async (userId) => {
     const company = await Company.findOne({ where: { userId }});
@@ -14,21 +15,32 @@ const getProfile = async (userId) => {
     return companyObject
 };
 
-const addJob = async (fields) => {
+const addJob = async (userId, fields) => {
     try {
+        const company = await getProfile(userId)
+        if (company.companyStatus !== 'Active'){
+            throw new Error('!Active')
+        }
+        if (!fields.skills) {
+            fields.skills = []
+        }
         await Job.create({
-            companyId: fields.user,
+            companyId: userId,
             description: fields.description,
-            skills: fields.skills,
             title: fields.title,
             city: fields.city,
             state: fields.state,
+            skills: fields.skills,
             active: true,
-            region: fields.region,
+            region: statesToRegion[fields.state],
             type: fields.type,
             qualifications: fields.qualifications,
         });
     } catch (err) {
+        console.log(err)
+        if (err.message === '!Active') {
+            throw new Error('Company is not Active'); 
+        }
         throw new Error('Create Job Failed');
     }
 };
@@ -36,15 +48,13 @@ const addJob = async (fields) => {
 const getJobs = async (companyId, offset = 0) => {
     const jobs = await Job.findAll({
         where: { companyId },
-        order: [['title', 'DESC']],
+        order: [['updatedAt', 'DESC']],
         limit: 10,
         offset
     });
-
     if (!jobs) {
         throw new Error('userId does not exist');
     }
-    
     return jobs
 };
 

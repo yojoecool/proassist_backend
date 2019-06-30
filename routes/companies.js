@@ -29,31 +29,35 @@ router.get('/getProfile', verifyUser, async (req, res) => {
 });
 
 router.post('/addJob', verifyUser, async (req, res) => {
-  if (req.locals.userId !== req.query.user) {
+  if (req.locals.userId !== req.query.userId) {
     res.status(403);
     res.json({ success: false });
     return;
   }
 
   try {
-    await companyFuncs.addJob(req.body)
+    await companyFuncs.addJob(req.query.userId, req.body)
     res.json({ success: true });
   } catch (err) {
     console.log(err);
-    res.status(500);
-    res.json({ success: false });
+    if (err.message === 'Company is not Active') {
+      res.status(403);
+    } else {
+      res.status(500);
     }
+    res.json({ success: false });
+  }
 });
 
 router.get('/getJobs', verifyUser, async (req, res) => {
-    if (req.locals.userId !== req.query.user) {
+    if (req.locals.userId !== req.query.userId) {
       res.status(403);
       res.json({ success: false });
       return;
     }
   
     try {
-      const jobs = await companyFuncs.getJobs(req.query.user, req.query.offset)
+      const jobs = await companyFuncs.getJobs(req.query.userId, req.query.offset)
       res.json({ success: true, jobs });
     } catch (err) {
       console.log(err);
