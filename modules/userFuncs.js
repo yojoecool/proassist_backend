@@ -21,14 +21,14 @@ const registerUser = async (fields) => {
   const emailAlreadyExists = await User.findOne({ where: { email: fields.email }});
   if (emailAlreadyExists) {
     throw new Error('email already exists');
-  }
+  };
 
   const createUser = await User.create({
     password: fields.password,
     facebookId: "",
     email: fields.email,
     userType: fields.userType
-  })
+  });
 
   switch(fields.userType) {
     case "JobSeeker":
@@ -36,7 +36,7 @@ const registerUser = async (fields) => {
         firstName: fields.firstName,
         lastName: fields.lastName,
         userId: createUser.userId
-      })
+      });
       break;
     case "Company":
       const poc = {
@@ -44,20 +44,30 @@ const registerUser = async (fields) => {
         lastName: fields.lastName,
         email: fields.pocEmail,
         phoneNumber: fields.phoneNumber
-      }
+      };
       await Company.create({
         name: fields.companyName,
         poc,
         companyStatus: 'Pending',
         userId: createUser.userId
-      })
+      });
+      await notifyAdmins(
+        'New Company Registered!' +
+        `\n\nCompany Name: ${fields.companyName}` +
+        `\n\nPOC:` +
+        `\n\tName: ${fields.firstName} ${fields.lastName}` +
+        `\n\tEmail: ${fields.pocEmail}` +
+        `\n\tPhone: ${fields.phoneNumber}` +
+        `\n\nNaviage to ProAssit to approve or deny the request!`,
+        'New Company Registered'
+      );
       break;
     case "Admin":
       await Admin.create({
         firstName: fields.firstName,
         lastName: fields.lastName,
         userId: createUser.userId
-      })
+      });
       break;
     default: 
       throw new Error('invalid userType');
