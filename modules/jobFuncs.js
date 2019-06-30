@@ -1,42 +1,56 @@
 require('dotenv').config();
+const Sequelize = require('sequelize');
 const { Job, JobsApplied, JobsSaved, JobSeeker } = require('../models');
 
 const filterJobs = async (filters, userId) => {
   const allJobs = await filterAllJobs(filters);
+  const allJobIds = allJobs.map(job => job.dataValues.jobId);
   let savedJobs = [];
   let appliedJobs = [];
   let jobsSavedApplied = [];
+  let savedJobIds = [];
+  let appliedJobIds = [];
+  let jobsSavedAppliedIds = [];
   if (userId) {
     const jobSeeker = await JobSeeker.findOne({ where: { userId } });
     savedJobs = await filterSavedJobs(jobSeeker);
+    savedJobIds = savedJobs.map(job => job.dataValues.jobId);
     appliedJobs = await filterAppliedJobs(jobSeeker);
-    jobsSavedApplied = savedJobs.filter(job => appliedJobs.includes(job));
+    appliedJobIds = appliedJobs.map(job => job.dataValues.jobId);
+    jobsSavedApplied = savedJobs.filter(job => appliedJobIds.includes(job.dataValues.jobId));
+    jobsSavedAppliedIds = jobsSavedApplied.map(job => job.dataValues.jobId);
   }
   let jobs = {};
   if (!filters.saved && !filters.applied) {
+    console.log('no saved and applied filters');
+    const savedFiltered = allJobs.filter(job => savedJobIds.includes(job.dataValues.jobId));
+    const appliedFiltered = allJobs.filter(job => appliedJobIds.includes(job.dataValues.jobId));
     jobs = {
       all: allJobs,
-      saved: savedJobs,
-      applied: appliedJobs
+      saved: savedFiltered,
+      applied: appliedFiltered
     };
   } else if (filters.saved && filters.applied) {
-    const jobsFiltered = allJobs.filter(job => jobsSavedApplied.includes(job));
+    console.log('both saved applied filters on');
+    const jobsFiltered = allJobs.filter(job => jobsSavedAppliedIds.includes(job.dataValues.jobId));
     jobs = {
       all: jobsFiltered,
       saved: jobsFiltered,
       applied: jobsFiltered
     };
   } else if (filters.saved) {
-    const jobsFiltered = allJobs.filter(job => savedJobs.includes(job));
-    const jobsFilteredApplied = jobsFiltered.filter(job => jobsSavedApplied.includes(job));
+    console.log('only saved filter on');
+    const jobsFiltered = allJobs.filter(job => savedJobIds.includes(job.dataValues.jobId));
+    const jobsFilteredApplied = jobsFiltered.filter(job => jobsSavedAppliedIds.includes(job.dataValues.jobId));
     jobs = {
       all: jobsFiltered,
       saved: jobsFiltered,
       applied: jobsFilteredApplied
     };
   } else if (filters.applied) {
-    const jobsFiltered = allJobs.filter(job => appliedJobs.includes(job));
-    const jobsFilteredSaved = jobsFiltered.filter(job => jobsSavedApplied.includes(job));
+    console.log('only applied filter on');
+    const jobsFiltered = allJobs.filter(job => appliedJobIds.includes(job.dataValues.jobId));
+    const jobsFilteredSaved = jobsFiltered.filter(job => jobsSavedAppliedIds.includes(job.dataValues.jobId));
     jobs = {
       all: jobsFiltered,
       saved: jobsFilteredSaved,
