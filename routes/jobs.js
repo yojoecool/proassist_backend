@@ -1,7 +1,8 @@
 require('dotenv').config();
 const express = require('express');
 const Sequelize = require('sequelize');
-const { Job } = require('../models');
+const { Job, JobsApplied, JobsSaved } = require('../models');
+const jobFuncs = require('../modules/jobFuncs');
 
 const Op = Sequelize.Op;
 const router = express.Router();
@@ -11,34 +12,55 @@ router.get('/', async (req, res) => {
     console.log('backend search');
     // const jobs = await Job.findAll();
     const filters = req.query.filters ? JSON.parse(req.query.filters) : null;
-    const whereStatement = {};
-    if (filters.title) {
-      whereStatement.title = Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('title')), 'LIKE', '%' + filters.title + '%');
-    }
-    if (filters.city) {
-      whereStatement.city = Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('city')), 'LIKE', '%' + filters.city + '%');
-    }
-    if (filters.state) {
-      whereStatement.state = Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('state')), 'LIKE', filters.state);
-    }
-    if (filters.region) {
-      whereStatement.region = Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('region')), 'LIKE', filters.region);
-    }
-    if (filters.type) {
-      whereStatement.type = Sequelize.where(Sequelize.fn('LOWER', Sequelize.col('type')), 'LIKE', filters.type);
-    }
-    const jobs = await Job.findAll({
-      where: whereStatement
-      // where: {
-      //   title: filters.title ? { [Op.like]: '%' + filters.title + '%' } : { [Op.ne]: null },
-      //   city: filters.city ? { [Op.like]: '%' + filters.city + '%' } : { [Op.ne]: null },
-      //   state: filters.state ? filters.state : { [Op.ne]: null },
-      //   region: filters.region ? filters.region : { [Op.ne]: null },
-      //   type: filters.type ? filters.type : { [Op.ne]: null }
-      // }
+    // console.log('filters:', filters);
+    const jobs = await jobFuncs.filterJobs(filters, req.query.userId);
+    console.log(jobs);
+    res.json(jobs);
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+});
+
+router.post('/apply', async (req, res) => {
+  console.log('applying for job', req.body);
+  try {
+    const appliedJob = await JobsApplied.create({
+      jobSeekerId: req.body.jobSeekerId,
+      jobId: req.body.jobId,
+      status: 'Applied'
     });
-    console.log('jobs from db:', jobs);
-    res.json(jobs)
+    // console.log('appliedJob:', appliedJob);
+    res.json({ success: true, appliedJob });
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+});
+
+router.post('/save', async (req, res) => {
+  console.log('saving job', req.query.jobId);
+  try {
+    const savedJob = await JobsSaved.create({ jobSeekerId: req.body.jobSeekerId, jobId: req.body.jobId });
+    // console.log('savedJob:', savedJob);
+    res.json({ success: true, savedJob });
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+});
+
+router.post('/unsave', async (req, res) => {
+  try {
+    await JobsSaved.destroy({
+      where: {
+        jobId: req.body.jobId
+      }
+    });
+    res.json({ success: true });
   } catch (err) {
     console.log(err);
     res.status(500);
