@@ -15,6 +15,22 @@ const getProfile = async (userId) => {
     return companyObject
 };
 
+const updatePOC = async (userId, fields) => {
+    const poc = {
+        firstName: fields.firstName,
+        lastName: fields.lastName,
+        phoneNumber: fields.phoneNumber,
+        email: fields.email
+    }
+    const company = await Company.update(
+        { poc },
+        { where: { userId } }
+    );
+    if (!company) {
+        throw new Error('Company does not exist');
+    }
+};
+
 const addJob = async (userId, fields) => {
     try {
         const company = await getProfile(userId)
@@ -62,6 +78,7 @@ const getJobs = async (companyId, offset = 0) => {
 
 module.exports = {
     getProfile,
+    updatePOC,
     addJob,
     getJobs
 };

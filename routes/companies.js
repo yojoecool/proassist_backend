@@ -28,6 +28,29 @@ router.get('/getProfile', verifyUser, async (req, res) => {
     }
 });
 
+router.put('/updatePOC', verifyUser, async (req, res) => {
+    if (req.locals.userId !== req.query.userId) {
+      res.status(403);
+      res.json({ success: false });
+      return;
+    }
+  
+    try {
+
+      await companyFuncs.updatePOC(req.query.userId, req.body)
+      res.json({ success: true });
+
+    } catch (err) {
+
+      if (err.message === 'Company does not exist'){
+        res.status(404);
+      } else {
+        res.status(500);
+      }
+      res.json({ success: false });
+    }
+});
+
 router.post('/addJob', verifyUser, async (req, res) => {
   if (req.locals.userId !== req.query.userId) {
     res.status(403);

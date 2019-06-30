@@ -1,6 +1,7 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const { User, JobSeeker, Company, Admin } = require('../models');
 
 const createJwt = (user) => {
@@ -77,6 +78,28 @@ const validateUser = async (email, password) => {
   return createJwt(user);
 };
 
+const updatePassword = async (userId, fields) => {
+  const user = await User.findOne({ where: { userId }});
+  if (!user) {
+    throw new Error('User does not exist');
+  }
+  const validUser = await user.validPassword(fields.currentPassword);
+  if (!validUser) {
+    throw new Error('Current password does not match');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(fields.password, salt);
+
+  const updatedUser = await User.update(
+      { password: hash },
+      { where: { userId } }
+  );
+  if (!updatedUser) {
+      throw new Error('User does not exist');
+  }
+};
+
 const getResumeStream = async (userId) => {
   const s3 = new AWS.S3({
     accessKeyId: process.env.AWS_ACCESS,
@@ -98,5 +121,6 @@ module.exports = {
   createJwt,
   registerUser,
   validateUser,
+  updatePassword,
   getResumeStream
 };
