@@ -146,7 +146,22 @@ const getUserInfo = async (userId) => {
   }
 
   return returnValues;
-}
+};
+
+const sendEmailVerify = async (email) => {
+  const ses = new AWS.SES({
+    accessKeyId: process.env.AWS_ACCESS,
+    secretAccessKey: process.env.AWS_SECRET,
+    region: 'us-east-1'
+  });
+
+  // await ses.sendCustomVerificationEmail({
+  //   EmailAddress: email,
+  //   TemplateName: 'ConfirmationTemplate'
+  // }).promise();
+
+  await ses.verifyEmailAddress({ EmailAddress: email }).promise();
+};
 
 module.exports = {
   createJwt,
@@ -154,5 +169,6 @@ module.exports = {
   validateUser,
   getResumeStream,
   notifyAdmins,
-  getUserInfo
+  getUserInfo,
+  sendEmailVerify
 };
