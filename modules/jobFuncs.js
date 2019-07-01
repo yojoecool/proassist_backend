@@ -23,8 +23,8 @@ const filterJobs = async (filters, userId) => {
   let jobs = {};
   if (!filters.saved && !filters.applied) {
     console.log('no saved and applied filters');
-    const savedFiltered = allJobs.filter(job => savedJobIds.includes(job.dataValues.jobId));
-    const appliedFiltered = allJobs.filter(job => appliedJobIds.includes(job.dataValues.jobId));
+    const savedFiltered = allJobIds.filter(jobId => savedJobIds.includes(jobId));
+    const appliedFiltered = allJobIds.filter(jobId => appliedJobIds.includes(jobId));
     jobs = {
       all: allJobs,
       saved: savedFiltered,
@@ -33,28 +33,31 @@ const filterJobs = async (filters, userId) => {
   } else if (filters.saved && filters.applied) {
     console.log('both saved applied filters on');
     const jobsFiltered = allJobs.filter(job => jobsSavedAppliedIds.includes(job.dataValues.jobId));
+    const jobsFilteredIds = jobsFiltered.map(job => job.dataValues.jobId);
     jobs = {
       all: jobsFiltered,
-      saved: jobsFiltered,
-      applied: jobsFiltered
+      saved: jobsFilteredIds,
+      applied: jobsFilteredIds
     };
   } else if (filters.saved) {
     console.log('only saved filter on');
     const jobsFiltered = allJobs.filter(job => savedJobIds.includes(job.dataValues.jobId));
-    const jobsFilteredApplied = jobsFiltered.filter(job => jobsSavedAppliedIds.includes(job.dataValues.jobId));
+    const jobsFilteredIds = jobsFiltered.map(job => job.dataValues.jobId);
+    const jobsFilteredAppliedIds = jobsFilteredIds.filter(jobId => jobsSavedAppliedIds.includes(jobId));
     jobs = {
       all: jobsFiltered,
-      saved: jobsFiltered,
-      applied: jobsFilteredApplied
+      saved: jobsFilteredIds,
+      applied: jobsFilteredAppliedIds
     };
   } else if (filters.applied) {
     console.log('only applied filter on');
     const jobsFiltered = allJobs.filter(job => appliedJobIds.includes(job.dataValues.jobId));
-    const jobsFilteredSaved = jobsFiltered.filter(job => jobsSavedAppliedIds.includes(job.dataValues.jobId));
+    const jobsFilteredIds = jobsFiltered.map(job => job.dataValues.jobId);
+    const jobsFilteredSavedIds = jobsFilteredIds.filter(jobId => jobsSavedAppliedIds.includes(jobId));
     jobs = {
       all: jobsFiltered,
-      saved: jobsFilteredSaved,
-      applied: jobsFiltered
+      saved: jobsFilteredSavedIds,
+      applied: jobsFilteredIds
     };
   }
   return jobs;

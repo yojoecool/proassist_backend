@@ -10,11 +10,8 @@ const router = express.Router();
 router.get('/', async (req, res) => {
   try {
     console.log('backend search');
-    // const jobs = await Job.findAll();
     const filters = req.query.filters ? JSON.parse(req.query.filters) : null;
-    // console.log('filters:', filters);
     const jobs = await jobFuncs.filterJobs(filters, req.query.userId);
-    console.log(jobs);
     res.json(jobs);
   } catch (err) {
     console.log(err);
