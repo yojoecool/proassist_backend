@@ -80,17 +80,14 @@ router.get('/getJobs', verifyUser, async (req, res) => {
     }
   
     try {
-      const jobs = await companyFuncs.getJobs(req.query.userId, req.query.offset)
+      const jobs = await companyFuncs.getJobs(req.query.userId, req.query.offset, req.query.limit)
       res.json({ success: true, jobs });
-    } catch (err) {
-      console.log(err);
-   
+    } catch (err) {   
       if (err.message === 'userId does not exist'){
         res.status(404);
         res.json({ success: false });
         return;
       }
-
       res.status(500);
       res.json({ success: false });
     }

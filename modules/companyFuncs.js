@@ -61,11 +61,11 @@ const addJob = async (userId, fields) => {
     }
 };
 
-const getJobs = async (companyId, offset = 0) => {
+const getJobs = async (companyId, offset = 0, limit = 10) => {
     const jobs = await Job.findAll({
         where: { companyId },
         order: [['updatedAt', 'DESC']],
-        limit: 10,
+        limit,
         offset
     });
     if (!jobs) {
