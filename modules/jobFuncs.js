@@ -81,7 +81,8 @@ const filterAllJobs = async (filters) => {
     whereStatement.type = filters.type;
   }
   const jobs = await Job.findAll({
-    where: whereStatement
+    where: whereStatement,
+    order: [['updatedAt', 'DESC']]
   });
   return jobs;
 };
@@ -96,6 +97,34 @@ const filterAppliedJobs = async (jobSeeker) => {
   return jobsApplied;
 };
 
+const apply = async (jobSeekerId, jobId) => {
+  const appliedJob = await JobsApplied.create({
+    jobSeekerId,
+    jobId,
+    status: 'Applied'
+  });
+  return appliedJob;
+};
+
+const save = async (jobSeekerId, jobId) => {
+  const savedJob = await JobsSaved.create({ 
+    jobSeekerId, 
+    jobId
+  });
+  return savedJob;
+};
+
+const unsave = async (jobId) => {
+  await JobsSaved.destroy({
+    where: {
+      jobId
+    }
+  });
+};
+
 module.exports = {
-  filterJobs
+  filterJobs,
+  apply,
+  save,
+  unsave
 };
