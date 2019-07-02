@@ -7,13 +7,11 @@ const router = express.Router();
 /* GET home page. */
 router.get('/test', async (req, res, next) => {
   try {
-    // const stuff = await User.create({ email: 'test@test.com', password: 'test', userType: 'Company' });
-    // const moreStuff = await Company.create({ userId: stuff.userId, name: 'test', lastName: 'anotherTest', poc: {} });
+    const stuff = await User.create({ email: 'test@test.com', password: 'test', userType: 'Company' });
+    const moreStuff = await Company.create({ userId: stuff.userId, name: 'test', lastName: 'anotherTest', poc: {}, companyStatus: 'Active' });
 
-    // const again = await User.create({ email: 'test2@test2.com', password: 'test', userType: 'JobSeeker' });
-    // const againAgain = await JobSeeker.create({ userId: again.userId, firstName: 'test', lastName: 'test', userType: 'Company' });
-
-    const stuff = await Company.findOne({ userId: '21cf9f16-caef-42e6-9d67-5783c7f1b074' });
+    const again = await User.create({ email: 'test2@test2.com', password: 'test', userType: 'JobSeeker' });
+    const againAgain = await JobSeeker.create({ userId: again.userId, firstName: 'test', lastName: 'test' });
 
     const newJob = await Job.create({
       companyId: stuff.userId, description: 'test', skills: ['test'], title: 'test Title',
@@ -30,21 +28,15 @@ router.get('/test', async (req, res, next) => {
       city: 'Houston', state: 'TX', active: true, region: 'Southwest', type: 'Part Time'
     });
 
-    // JobsSaved.destroy({
-    //   where: {
-    //     id: [3]
-    //   }
-    // });
-    
-    // await againAgain.addJobSaved(newJob);
-    // await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
+    await againAgain.addJobSaved(newJob);
+    await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
 
-    // console.log(await againAgain.getJobSaved());
-    // console.log(await againAgain.getJobApplied());
-    // console.log(await newJob.getSavedBy());
-    // console.log(await newJob.getAppliedBy());
+    console.log(await againAgain.getJobSaved());
+    console.log(await againAgain.getJobApplied());
+    console.log(await newJob.getSavedBy());
+    console.log(await newJob.getAppliedBy());
 
-    // res.send({ ...stuff.dataValues, ...moreStuff.dataValues });
+    res.send({ ...stuff.dataValues, ...moreStuff.dataValues });
   } catch (err) {
     console.log(err);
     res.send('error');
