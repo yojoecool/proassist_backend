@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { User, Company, Job, JobSeeker } = require('../models');
+const { User, Company, Job, JobSeeker, JobsSaved } = require('../models');
 
 const router = express.Router();
 
@@ -15,18 +15,34 @@ router.get('/test', async (req, res, next) => {
 
     const newJob = await Job.create({
       companyId: stuff.userId, description: 'test', skills: ['test'], title: 'test Title',
-      city: 'Testington', state: 'AL', active: true, region: 'Southeast', type: 'FullTime'
+      city: 'Testington', state: 'AL', active: true, region: 'Southeast', type: 'Full Time'
     });
+
+    const newJob2 = await Job.create({
+      companyId: stuff.userId, description: 'counting churros', skills: ['basic math'], title: 'Churro Counter',
+      city: 'McLean', state: 'VA', active: true, region: 'Northeast', type: 'Full Time'
+    });
+
+    const newJob3 = await Job.create({
+      companyId: stuff.userId, description: 'counting churros', skills: ['basic math'], title: 'Churro Counter',
+      city: 'Houston', state: 'TX', active: true, region: 'Southwest', type: 'Part Time'
+    });
+
+    // JobsSaved.destroy({
+    //   where: {
+    //     id: [3]
+    //   }
+    // });
     
-    await againAgain.addJobSaved(newJob);
-    await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
+    // await againAgain.addJobSaved(newJob);
+    // await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
 
-    console.log(await againAgain.getJobSaved());
-    console.log(await againAgain.getJobApplied());
-    console.log(await newJob.getSavedBy());
-    console.log(await newJob.getAppliedBy());
+    // console.log(await againAgain.getJobSaved());
+    // console.log(await againAgain.getJobApplied());
+    // console.log(await newJob.getSavedBy());
+    // console.log(await newJob.getAppliedBy());
 
-    res.send({ ...stuff.dataValues, ...moreStuff.dataValues });
+    // res.send({ ...stuff.dataValues, ...moreStuff.dataValues });
   } catch (err) {
     console.log(err);
     res.send('error');
