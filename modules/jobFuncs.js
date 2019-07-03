@@ -4,9 +4,7 @@ const { Job, JobSeeker } = require('../models');
 
 const filterJobs = async (filters) => {
   const where = createFilterStatement(filters);
-  console.log(where)
-
-  const all = await filterAllJobs(where);
+  const all = await Job.findAll({ where });
 
   return { all };
 };
@@ -31,11 +29,6 @@ const createFilterStatement = (filters) => {
 
   return whereStatement;
 }
-
-const filterAllJobs = async (where) => {
-  const jobs = await Job.findAll({ where });
-  return jobs;
-};
 
 const filterSavedJobs = async (jobSeeker, where = {}) => {
   const jobsSaved = await jobSeeker.getJobSaved({ where });
