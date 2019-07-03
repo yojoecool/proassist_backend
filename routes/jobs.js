@@ -1,20 +1,25 @@
 require('dotenv').config();
 const express = require('express');
-const Sequelize = require('sequelize');
-const { Job, JobsApplied, JobsSaved } = require('../models');
+const { JobsApplied, JobsSaved } = require('../models');
 const jobFuncs = require('../modules/jobFuncs');
+const { verifyUser } = require('../middleware');
 
-const Op = Sequelize.Op;
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    console.log('backend search');
-    // const jobs = await Job.findAll();
-    const filters = req.query.filters ? JSON.parse(req.query.filters) : null;
-    // console.log('filters:', filters);
-    const jobs = await jobFuncs.filterJobs(filters, req.query.userId);
-    console.log(jobs);
+    const jobs = await jobFuncs.filterJobs(JSON.parse(req.query.filters));
+    res.json(jobs);
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+});
+
+router.get('/userJobs', verifyUser, async (req, res) => {
+  try {
+    const jobs = await jobFuncs.userJobs(req.locals.userId);
     res.json(jobs);
   } catch (err) {
     console.log(err);
