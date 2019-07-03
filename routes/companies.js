@@ -138,5 +138,4 @@ router.get('/getJobs', verifyUser, async (req, res) => {
     }
 });
 
-// TODO Add Jobs, Remove (disable Job), edit profile, deactivate account
 module.exports = router;

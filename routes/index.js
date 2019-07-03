@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { User, Company, Job, JobSeeker, JobsSaved } = require('../models');
+const { User, Company, Job, JobSeeker, JobsSaved, Admin } = require('../models');
 
 const router = express.Router();
 
@@ -42,5 +42,17 @@ router.get('/test', async (req, res, next) => {
     res.send('error');
   }
 });
+
+router.get('/createadmin', async (req, res, next) => {
+  try {
+    const stuff = await User.create({ email: 'admin@test.com', password: 'test', userType: 'Admin' });
+    const moreStuff = await Admin.create({ userId: stuff.userId, firstName: 'test', lastName: 'anotherTest'});
+
+  } catch (err) {
+    console.log(err);
+    res.send('error');
+  }
+});
+
 
 module.exports = router;

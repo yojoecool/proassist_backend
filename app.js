@@ -7,11 +7,8 @@ const cors = require('cors');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-<<<<<<< HEAD
 const companiesRouter = require('./routes/companies');
-=======
 const jobsRouter = require('./routes/jobs');
->>>>>>> 8be878ff2e6a195c7040892892c69a968f0803b5
 
 const app = express();
 
@@ -24,10 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-<<<<<<< HEAD
 app.use('/companies', companiesRouter);
-=======
 app.use('/careers', jobsRouter);
->>>>>>> 8be878ff2e6a195c7040892892c69a968f0803b5
 
 module.exports = app;
