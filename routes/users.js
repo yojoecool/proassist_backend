@@ -93,4 +93,28 @@ router.post('/uploadResume', verifyUser, s3Upload.single('file'), async (req, re
   res.send('success');
 });
 
+router.get('/userInfo', verifyUser, async (req, res) => {
+  if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
+    res.status(403);
+    res.json({ success: false });
+    return;
+  }
+
+  try {
+    const userData = await userFuncs.getUserInfo(req.locals.userId);
+    res.json(userData);
+  } catch (err) {
+    console.log(err);
+    if (err.message === 'User not found') {
+      res.status(404);
+      res.json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(500);
+    res.json({ error: 'Error loading resource' });
+    return;
+  }
+})
+
 module.exports = router;
