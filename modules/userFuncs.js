@@ -18,6 +18,22 @@ const createJwt = (user) => {
   return token;
 };
 
+const notifyAdmins = async (message, subject) => {
+  const sns = new AWS.SNS({
+    accessKeyId: process.env.AWS_ACCESS,
+    secretAccessKey: process.env.AWS_SECRET,
+    region: 'us-east-1'
+  });
+
+  const params = {
+    Message: message,
+    TopicArn: process.env.SNS_TOPIC,
+    Subject: subject
+  };
+
+  await sns.publish(params).promise();
+};
+
 const registerUser = async (fields) => {
   const emailAlreadyExists = await User.findOne({ where: { email: fields.email }});
   if (emailAlreadyExists) {
@@ -125,22 +141,6 @@ const getResumeStream = async (userId) => {
 
   const fileStream = s3.getObject(params).createReadStream();
   return fileStream;
-};
-
-const notifyAdmins = async (message, subject) => {
-  const sns = new AWS.SNS({
-    accessKeyId: process.env.AWS_ACCESS,
-    secretAccessKey: process.env.AWS_SECRET,
-    region: 'us-east-1'
-  });
-
-  const params = {
-    Message: message,
-    TopicArn: process.env.SNS_TOPIC,
-    Subject: subject
-  };
-
-  await sns.publish(params).promise();
 };
 
 const getUserInfo = async (userId) => {
