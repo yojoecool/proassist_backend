@@ -21,6 +21,29 @@ router.post('/login', async (req, res) => {
   }
 });
 
+router.put('/updatePassword', verifyUser, async (req, res) => {
+  if (req.locals.userId !== req.query.userId) {
+    res.status(403);
+    res.json({ success: false });
+    return;
+  }
+
+  try {
+    await userFuncs.updatePassword(req.query.userId, req.body)
+    res.json({ success: true });
+  } catch (err) {
+    console.log(err)
+    if (err.message === 'Current password does not match') {
+      res.status(403);
+    } else if (err.message === 'User does not exist'){
+      res.status(404);
+    } else {
+      res.status(500);
+    }    
+    res.json({ success: false });
+  }
+});
+
 router.post('/register', async (req, res) => {
   try {
     console.log(req.body);
@@ -69,5 +92,29 @@ router.get('/getResume', verifyUser, async (req, res) => {
 router.post('/uploadResume', verifyUser, s3Upload.single('file'), async (req, res) => {
   res.send('success');
 });
+
+router.get('/userInfo', verifyUser, async (req, res) => {
+  if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
+    res.status(403);
+    res.json({ success: false });
+    return;
+  }
+
+  try {
+    const userData = await userFuncs.getUserInfo(req.locals.userId);
+    res.json(userData);
+  } catch (err) {
+    console.log(err);
+    if (err.message === 'User not found') {
+      res.status(404);
+      res.json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(500);
+    res.json({ error: 'Error loading resource' });
+    return;
+  }
+})
 
 module.exports = router;

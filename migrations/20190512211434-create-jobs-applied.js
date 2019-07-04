@@ -41,6 +41,9 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('JobsApplied');
+    return queryInterface.dropTable('JobsApplied')
+    .then(() => {
+      queryInterface.sequelize.query('drop type "enum_JobsApplied_status"');
+    });
   }
 };

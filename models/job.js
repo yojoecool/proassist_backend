@@ -28,6 +28,7 @@ module.exports = (sequelize, DataTypes) => {
       values: jobTypes,
     },
     qualifications: DataTypes.STRING,
+    updatedAt: DataTypes.DATE,
   }, {});
 
   Job.beforeCreate(job => job.jobId = uuid());
