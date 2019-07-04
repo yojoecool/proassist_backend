@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { User, Company, Job, JobSeeker, JobsSaved } = require('../models');
+const { User, Company, Job, JobSeeker, JobsSaved, Admin } = require('../models');
 
 const router = express.Router();
 
@@ -28,25 +28,31 @@ router.get('/test', async (req, res, next) => {
       city: 'Houston', state: 'TX', active: true, region: 'Southwest', type: 'Part Time'
     });
 
-    // JobsSaved.destroy({
-    //   where: {
-    //     id: [3]
-    //   }
-    // });
-    
-    // await againAgain.addJobSaved(newJob);
-    // await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
+    await againAgain.addJobSaved(newJob);
+    await againAgain.addJobApplied(newJob, { through: { status: 'Applied' }});
 
-    // console.log(await againAgain.getJobSaved());
-    // console.log(await againAgain.getJobApplied());
-    // console.log(await newJob.getSavedBy());
-    // console.log(await newJob.getAppliedBy());
+    console.log(await againAgain.getJobSaved());
+    console.log(await againAgain.getJobApplied());
+    console.log(await newJob.getSavedBy());
+    console.log(await newJob.getAppliedBy());
 
-    // res.send({ ...stuff.dataValues, ...moreStuff.dataValues });
+    res.send({ ...stuff.dataValues, ...moreStuff.dataValues });
   } catch (err) {
     console.log(err);
     res.send('error');
   }
 });
+
+router.get('/createadmin', async (req, res, next) => {
+  try {
+    const stuff = await User.create({ email: 'admin@test.com', password: 'test', userType: 'Admin' });
+    const moreStuff = await Admin.create({ userId: stuff.userId, firstName: 'test', lastName: 'anotherTest'});
+
+  } catch (err) {
+    console.log(err);
+    res.send('error');
+  }
+});
+
 
 module.exports = router;
