@@ -12,6 +12,7 @@ module.exports = (sequelize, DataTypes) => {
       type: DataTypes.UUID,
       primaryKey: true,
     },
+    updatedAt: DataTypes.DATE,
   }, {});
 
   Company.associate = (models) => {
