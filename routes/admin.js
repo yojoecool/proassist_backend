@@ -20,7 +20,6 @@ router.get('/getPendingCompanies', verifyUser, verifyAdmin, async (req, res) => 
 });
 
 router.put('/updateCompanyStatus', verifyUser, verifyAdmin, async (req, res) => {
-    console.log(req.body)
     try {
       await adminFuncs.updateCompanyStatus(
           req.body.companyId, req.body.status
