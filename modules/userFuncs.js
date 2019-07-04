@@ -75,7 +75,7 @@ const registerUser = async (fields) => {
         `\n\tName: ${fields.firstName} ${fields.lastName}` +
         `\n\tEmail: ${fields.pocEmail}` +
         `\n\tPhone: ${fields.phoneNumber}` +
-        `\n\nNaviage to ProAssit to approve or deny the request!`,
+        `\n\nNavigate to ProAssist to approve or deny the request!`,
         'New Company Registered'
       );
       break;

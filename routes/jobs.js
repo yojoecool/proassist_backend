@@ -28,11 +28,11 @@ router.get('/userJobs', verifyUser, async (req, res) => {
   }
 });
 
-router.post('/apply', async (req, res) => {
+router.post('/apply', verifyUser, async (req, res) => {
   console.log('applying for job', req.body);
   try {
     const appliedJob = await JobsApplied.create({
-      jobSeekerId: req.body.jobSeekerId,
+      jobSeekerId: req.locals.userId,
       jobId: req.body.jobId,
       status: 'Applied'
     });
@@ -45,10 +45,13 @@ router.post('/apply', async (req, res) => {
   }
 });
 
-router.post('/save', async (req, res) => {
+router.post('/save', verifyUser, async (req, res) => {
   console.log('saving job', req.query.jobId);
   try {
-    const savedJob = await JobsSaved.create({ jobSeekerId: req.body.jobSeekerId, jobId: req.body.jobId });
+    const savedJob = await JobsSaved.create({
+      jobSeekerId: req.locals.userId,
+      jobId: req.body.jobId
+    });
     // console.log('savedJob:', savedJob);
     res.json({ success: true, savedJob });
   } catch (err) {
@@ -58,10 +61,11 @@ router.post('/save', async (req, res) => {
   }
 });
 
-router.post('/unsave', async (req, res) => {
+router.post('/unsave', verifyUser, async (req, res) => {
   try {
     await JobsSaved.destroy({
       where: {
+        jobSeekerId: req.locals.userId,
         jobId: req.body.jobId
       }
     });
