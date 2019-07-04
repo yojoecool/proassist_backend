@@ -4,13 +4,15 @@ const { Job, JobSeeker } = require('../models');
 
 const filterJobs = async (filters) => {
   const where = createFilterStatement(filters);
-  const all = await Job.findAll({ where });
+  const all = await Job.findAll({ where, order: [['updatedAt', 'DESC']] });
 
   return { all };
 };
 
 const createFilterStatement = (filters) => {
-  const whereStatement = {};
+  const whereStatement = {
+    active: true
+  };
   if (filters.title) {
     whereStatement.title = Sequelize.where(Sequelize.fn('UPPER', Sequelize.col('title')), 'LIKE', '%' + filters.title.toUpperCase() + '%');
   }
