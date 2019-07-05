@@ -1,6 +1,6 @@
 const { Company, Job, JobsApplied } = require('../models');
 
-const getPendingCompanies = async (offset = 0, limit = 10) => {
+const getPendingCompanies = async (offset = 0, limit = 5) => {
     const companies = await Company.findAll({
         where: { companyStatus : 'Pending' },
         order: [['updatedAt', 'DESC']],
@@ -22,7 +22,7 @@ const updateCompanyStatus = async (userId, companyStatus) => {
 };
 
 // NOT DONE
-const getAppliedJobs = async (offset = 0, limit = 10) => {
+const getAppliedJobs = async (offset = 0, limit = 5) => {
     const jobs = await Job.findAll({
         // where: { companyStatus : 'Pending' },
         order: [['updatedAt', 'DESC']],

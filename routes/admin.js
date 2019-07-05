@@ -7,10 +7,11 @@ const adminFuncs = require('../modules/adminFuncs');
 const router = express.Router();
 
 router.get('/getPendingCompanies', verifyUser, verifyAdmin, async (req, res) => {
+  console.log(req.query)
     try {
       const pendingCompanies = await 
         adminFuncs.getPendingCompanies(
-          req.query.offset, req.query.limit
+          req.query.companyOffset, req.query.limit
         );
       res.json({ success: true, pendingCompanies });
     } catch (err) {
