@@ -102,10 +102,8 @@ router.put('/editJob', verifyUser, async (req, res) => {
   }
 
   try {
-
     await companyFuncs.editJob(req.query.userId, req.query.jobId, req.body)
     res.json({ success: true });
-
   } catch (err) {
     console.log(err);
     if (err.message === 'Company is not Active') {
@@ -123,6 +121,7 @@ router.get('/getJobs', verifyUser, async (req, res) => {
       res.json({ success: false });
       return;
     }
+    console.log('**1**', req.query)
   
     try {
       const jobs = await companyFuncs.getJobs(req.query.userId, req.query.offset, req.query.limit)

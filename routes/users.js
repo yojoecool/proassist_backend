@@ -101,7 +101,7 @@ router.get('/userInfo', verifyUser, async (req, res) => {
   }
 
   try {
-    const userData = await userFuncs.getUserInfo(req.locals.userId);
+    const { userData } = await userFuncs.getUserInfo(req.locals.userId);
     res.json(userData);
   } catch (err) {
     console.log(err);

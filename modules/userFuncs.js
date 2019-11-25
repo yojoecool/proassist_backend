@@ -6,14 +6,27 @@ const { User, JobSeeker, Company, Admin } = require('../models');
 
 const createJwt = (user) => {
   const { APP_SECRET } = process.env;
+  const tokenData = {
+    userId: user.userId,
+    email: user.email,
+    userType: user.userType
+  };
 
-  const token = jwt.sign({
-    userId: user.dataValues.userId,
-    email: user.dataValues.email,
-    userType: user.dataValues.userType
-  },
-  APP_SECRET,
-  { expiresIn: '24h' });
+  switch (user.userType) {
+    case 'Company':
+      tokenData.name = user.name;
+      tokenData.companyStatus = user.companyStatus;
+      break;
+    case 'Admin':
+    case 'JobSeeker':
+      tokenData.name = `${user.firstName} ${user.lastName}`;
+      break;
+    default:
+      tokenData.name = '';
+      break;
+  }
+
+  const token = jwt.sign(tokenData, APP_SECRET, { expiresIn: '24h' });
 
   return token;
 };
@@ -92,7 +105,8 @@ const registerUser = async (fields) => {
 }
 
 const validateUser = async (email, password) => {
-  const user = await User.findOne({ where: { email }});
+  const { user, userData } = await getUserInfo(null, email);
+  console.log(userData)
   if (!user) {
     throw new Error('invalid');
   }
@@ -101,7 +115,7 @@ const validateUser = async (email, password) => {
     throw new Error('invalid');
   }
 
-  return createJwt(user);
+  return createJwt(userData);
 };
 
 const updatePassword = async (userId, fields) => {
@@ -118,11 +132,11 @@ const updatePassword = async (userId, fields) => {
   const hash = await bcrypt.hash(fields.password, salt);
 
   const updatedUser = await User.update(
-      { password: hash },
-      { where: { userId } }
+    { password: hash },
+    { where: { userId } }
   );
   if (!updatedUser) {
-      throw new Error('User does not exist');
+    throw new Error('User does not exist');
   }
 };
 
@@ -143,32 +157,74 @@ const getResumeStream = async (userId) => {
   return fileStream;
 };
 
-const getUserInfo = async (userId) => {
-  const user = await User.findOne({ where: { userId } });
+const getUserInfo = async (userId = null, email = null) => {
+  const where = {
+    ...(userId && { userId }),
+    ...(email && { email })
+  }
+
+  const user = await User.findOne({ where });
   if (!user) {
     throw new Error('User not found');
   }
 
-  const { userType, email } = user.dataValues;
-  let returnValues = { userType, email };
+  const { userType, email: confirmedEmail, userId: confirmedId } = user.dataValues;
+  let userData = { userType, email: confirmedEmail, userId: confirmedId };
 
   switch(userType) {
     case 'Admin':
     case 'JobSeeker':
-      const jobSeeker = await JobSeeker.findOne({ where: { userId } });
+      const jobSeeker = await JobSeeker.findOne({ where: { userId: confirmedId } });
       const { firstName, lastName } = jobSeeker.dataValues;
-      returnValues = { ...returnValues, firstName, lastName };
+      userData = { ...userData, firstName, lastName };
       break;
     case 'Company':
-      const company = await Company.findOne({ where: { userId } });
-      const { name, poc } = company.dataValues;
-      returnValues = { ...returnValues, name, poc };
+      const company = await Company.findOne({ where: { userId: confirmedId } });
+      const { name, poc, companyStatus } = company.dataValues;
+      userData = { ...userData, name, poc, companyStatus };
       break;
     default:
       break;
   }
 
-  return returnValues;
+  return { user, userData };
+}
+
+const sendEmail = async (emails, body, subject) => {
+  if (typeof emails === "string") {
+    emails = [emails];
+  } else if (!Array.isArray(emails)) {
+    throw new Error("invalid array");
+  }
+
+  const ses = new AWS.SES();
+
+  const params = {
+    Destination: {
+      ToAddresses: emails
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: 'UTF-8',
+          Data: body
+        }
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: subject
+      }
+    },
+    ReturnPath: 'admin@proassist.careers',
+    Source: ['admin@proassist.careers']
+  };
+
+  try {
+    await ses.sendEmail(params).promise();
+  } catch (err) {
+    console.log(err);
+    throw new Error("Unable to send email");
+  }
 }
 
 module.exports = {
@@ -179,5 +235,6 @@ module.exports = {
   notifyAdmins,
   getUserInfo,
   updatePassword,
-  getResumeStream
+  getResumeStream,
+  sendEmail
 };

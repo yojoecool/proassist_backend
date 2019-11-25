@@ -111,7 +111,8 @@ const getJobs = async (companyId, offset = 0, limit = 10) => {
     if (!jobs) {
         throw new Error('userId does not exist');
     }
-    return jobs
+    console.log(jobs);
+    return jobs;
 };
 
 
