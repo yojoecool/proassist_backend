@@ -45,7 +45,7 @@ router.get('/test', async (req, res, next) => {
 
 router.get('/createadmin', async (req, res, next) => {
   try {
-    const stuff = await User.create({ email: 'admin@test.com', password: 'test', userType: 'Admin' });
+    const stuff = await User.create({ email: 'admin@admin.com', password: 'test', userType: 'Admin' });
     const moreStuff = await Admin.create({ userId: stuff.userId, firstName: 'test', lastName: 'anotherTest'});
 
   } catch (err) {

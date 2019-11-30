@@ -170,12 +170,18 @@ const getUserInfo = async (userId = null, email = null) => {
 
   const { userType, email: confirmedEmail, userId: confirmedId } = user.dataValues;
   let userData = { userType, email: confirmedEmail, userId: confirmedId };
+  let firstName;
+  let lastName;
 
   switch(userType) {
     case 'Admin':
+      const admin = await Admin.findOne({ where: { userId: confirmedId } });
+      ({ firstName, lastName } = admin.dataValues);
+      userData = { ...userData, firstName, lastName };
+      break;
     case 'JobSeeker':
       const jobSeeker = await JobSeeker.findOne({ where: { userId: confirmedId } });
-      const { firstName, lastName } = jobSeeker.dataValues;
+      ({ firstName, lastName } = jobSeeker.dataValues);
       userData = { ...userData, firstName, lastName };
       break;
     case 'Company':

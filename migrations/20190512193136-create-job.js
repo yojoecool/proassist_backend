@@ -11,7 +11,7 @@ module.exports = {
       },
       companyId: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'Companies',
           key: 'userId',

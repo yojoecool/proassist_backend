@@ -33,15 +33,15 @@ const updatePOC = async (userId, fields) => {
 
 const addJob = async (userId, fields) => {
     try {
-        const company = await getProfile(userId)
-        if (company.companyStatus !== 'Active'){
-            throw new Error('!Active')
-        }
+        // const company = await getProfile(userId);
+        // if (company.companyStatus !== 'Active'){
+        //     throw new Error('!Active');
+        // }
         if (!fields.skills) {
-            fields.skills = []
+            fields.skills = [];
         }
         await Job.create({
-            companyId: userId,
+            companyId: null,
             description: fields.description,
             title: fields.title,
             city: fields.city,
@@ -66,18 +66,18 @@ const getJob = async (companyId, jobId) => {
     if (!job) {
         throw new Error('Job does not exist');
     }
-    return job
+    return job;
 };
 
 
 const editJob = async (userId, jobId, fields) => {
     try {
-        const company = await getProfile(userId)
-        if (company.companyStatus !== 'Active'){
-            throw new Error('!Active')
-        }
+        // const company = await getProfile(userId)
+        // if (company.companyStatus !== 'Active'){
+        //     throw new Error('!Active');
+        // }
         if (!fields.skills) {
-            fields.skills = []
+            fields.skills = [];
         }
         await Job.update(
         {
@@ -91,7 +91,7 @@ const editJob = async (userId, jobId, fields) => {
             type: fields.type,
             qualifications: fields.qualifications,
         },
-        { where: { companyId:userId, jobId } });
+        { where: { companyId: userId, jobId } });
     } catch (err) {
         console.log(err)
         if (err.message === '!Active') {
@@ -114,8 +114,6 @@ const getJobs = async (companyId, offset = 0, limit = 10) => {
     console.log(jobs);
     return jobs;
 };
-
-
 
 module.exports = {
     getProfile,

@@ -59,7 +59,7 @@ router.post('/addJob', verifyUser, async (req, res) => {
   }
 
   try {
-    await companyFuncs.addJob(req.query.userId, req.body)
+    await companyFuncs.addJob(req.query.userId, req.body);
     res.json({ success: true });
   } catch (err) {
     console.log(err);
