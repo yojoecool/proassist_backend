@@ -4,7 +4,18 @@ const { Job, JobSeeker } = require('../models');
 
 const filterJobs = async (filters) => {
   const where = createFilterStatement(filters);
-  const all = await Job.findAll({ where, order: [['updatedAt', 'DESC']] });
+  const all = await Job.findAll({
+    where,
+    order: [['updatedAt', 'DESC']],
+    include: [{
+      model: JobSeeker,
+      as: 'AppliedBy',
+      through: {
+        attributes: []
+      },
+      attributes: ['userId', 'firstName', 'lastName']
+    }],
+  });
 
   return { all };
 };
@@ -53,7 +64,15 @@ const userJobs = async (userId) => {
   return { saved, applied };
 }
 
+const applicants = async (jobId) => {
+  const job = await Job.findOne({ where: { jobId } });
+  const applicants = await job.getAppliedBy();
+
+  return { applicants, count: applicants.length };
+}
+
 module.exports = {
   filterJobs,
-  userJobs
+  userJobs,
+  applicants
 };

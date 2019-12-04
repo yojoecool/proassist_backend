@@ -1,14 +1,15 @@
 require('dotenv').config();
 const express = require('express');
-const { JobsApplied, JobsSaved } = require('../models');
+const { JobsApplied, JobsSaved, Job } = require('../models');
 const jobFuncs = require('../modules/jobFuncs');
-const { verifyUser } = require('../middleware');
+const { verifyUser, verifyAdmin } = require('../middleware');
 
 const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const jobs = await jobFuncs.filterJobs(JSON.parse(req.query.filters));
+    const filters = req.query.filters ? req.query.filters : '{}';
+    const jobs = await jobFuncs.filterJobs(JSON.parse(filters));
     res.json(jobs);
   } catch (err) {
     console.log(err);
@@ -70,6 +71,30 @@ router.post('/unsave', verifyUser, async (req, res) => {
       }
     });
     res.json({ success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+});
+
+router.get('/number-of-applicants', async (req, res) => {
+  try {
+    const { jobId } = req.query;
+    const { count } = await jobFuncs.applicants(jobId);
+    res.json({ success: true, count });
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+})
+
+router.get('/applicants', async (req, res) => {
+  try {
+    const { jobId } = req.query;
+    const returnValues = await jobFuncs.applicants(jobId);
+    res.json({ success: true, ...returnValues });
   } catch (err) {
     console.log(err);
     res.status(500);
