@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { verifyUser } = require('../middleware');
+const { verifyUser, verifyAdmin } = require('../middleware');
 const companyFuncs = require('../modules/companyFuncs');
 
 const router = express.Router();
@@ -78,7 +78,6 @@ router.get('/getJob', verifyUser, async (req, res) => {
     res.json({ success: false });
     return;
   }
-  console.log(req.query)
 
   try {
     const job = await companyFuncs.getJob(req.query.userId, req.query.jobId)
@@ -94,7 +93,7 @@ router.get('/getJob', verifyUser, async (req, res) => {
   }
 });
 
-router.put('/editJob', verifyUser, async (req, res) => {
+router.put('/editJob', verifyUser, verifyAdmin, async (req, res) => {
   if (req.locals.userId !== req.query.userId) {
     res.status(403);
     res.json({ success: false });
@@ -121,7 +120,6 @@ router.get('/getJobs', verifyUser, async (req, res) => {
       res.json({ success: false });
       return;
     }
-    console.log('**1**', req.query)
   
     try {
       const jobs = await companyFuncs.getJobs(req.query.userId, req.query.offset, req.query.limit)

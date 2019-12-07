@@ -62,7 +62,7 @@ const addJob = async (userId, fields) => {
 };
 
 const getJob = async (companyId, jobId) => {
-    const job = await Job.findOne({ where: { companyId, jobId }});
+    const job = await Job.findOne({ where: { jobId }});
     if (!job) {
         throw new Error('Job does not exist');
     }
@@ -91,7 +91,7 @@ const editJob = async (userId, jobId, fields) => {
             type: fields.type,
             qualifications: fields.qualifications,
         },
-        { where: { companyId: userId, jobId } });
+        { where: { jobId } });
     } catch (err) {
         console.log(err)
         if (err.message === '!Active') {

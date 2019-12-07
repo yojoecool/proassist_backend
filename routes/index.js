@@ -1,6 +1,7 @@
 require('dotenv').config();
 const express = require('express');
 const { User, Company, Job, JobSeeker, JobsSaved, Admin } = require('../models');
+const jobFuncs = require('../modules/jobFuncs');
 
 const router = express.Router();
 
@@ -54,5 +55,14 @@ router.get('/createadmin', async (req, res, next) => {
   }
 });
 
+router.get('/appli', async (req, res) => {
+  try {
+    const applicants = await jobFuncs.applicants('d16afb6f-1a5c-4b5f-9595-5e5dddea23b3');
+    res.send({ success: true, data: applicants });
+  } catch (err) {
+    console.log(err);
+    res.send('error');
+  }
+})
 
 module.exports = router;

@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Sequelize = require('sequelize');
-const { Job, JobSeeker } = require('../models');
+const { Job, JobSeeker, User, JobsApplied } = require('../models');
 
 const filterJobs = async (filters) => {
   const where = createFilterStatement(filters);
@@ -66,9 +66,23 @@ const userJobs = async (userId) => {
 
 const applicants = async (jobId) => {
   const job = await Job.findOne({ where: { jobId } });
-  const applicants = await job.getAppliedBy();
+  const applicants = await job.getAppliedBy({
+    include: [{
+      model: User,
+      attributes: ['email']
+    },
+    {
+      model: Job,
+      as: 'JobApplied',
+      through: {
+        attributes: ['status']
+      },
+      attributes: [],
+      where: { jobId }
+    }]
+  });
 
-  return { applicants, count: applicants.length };
+  return { applicants, job, count: applicants.length };
 }
 
 module.exports = {

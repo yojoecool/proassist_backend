@@ -196,14 +196,21 @@ const getUserInfo = async (userId = null, email = null) => {
   return { user, userData };
 }
 
-const sendEmail = async (emails, body, subject) => {
+const sendEmail = async (emails, messageText, subject) => {
   if (typeof emails === "string") {
     emails = [emails];
   } else if (!Array.isArray(emails)) {
     throw new Error("invalid array");
   }
 
-  const ses = new AWS.SES();
+  const ses = new AWS.SES({
+    accessKeyId: process.env.AWS_ACCESS,
+    secretAccessKey: process.env.AWS_SECRET,
+    region: 'us-east-1'
+  });
+
+  const messageBody =
+    `<div style="white-space: pre-wrap;word-break: keep-all">${messageText}</div>`;
 
   const params = {
     Destination: {
@@ -213,7 +220,7 @@ const sendEmail = async (emails, body, subject) => {
       Body: {
         Html: {
           Charset: 'UTF-8',
-          Data: body
+          Data: messageBody
         }
       },
       Subject: {
@@ -222,7 +229,7 @@ const sendEmail = async (emails, body, subject) => {
       }
     },
     ReturnPath: 'admin@proassist.careers',
-    Source: ['admin@proassist.careers']
+    Source: 'admin@proassist.careers'
   };
 
   try {
