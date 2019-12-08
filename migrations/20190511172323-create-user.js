@@ -35,6 +35,9 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Users');
+    return queryInterface.dropTable('Users')
+    .then(() => {
+      queryInterface.sequelize.query('drop type "enum_Users_userType"');
+    });
   }
 };

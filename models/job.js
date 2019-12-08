@@ -28,17 +28,24 @@ module.exports = (sequelize, DataTypes) => {
       values: jobTypes,
     },
     qualifications: DataTypes.STRING,
+    updatedAt: DataTypes.DATE,
   }, {});
 
   Job.beforeCreate(job => job.jobId = uuid());
 
   Job.associate = (models) => {
-    Job.belongsTo(models.Company, { foreignKey: 'companyId' });
+    Job.belongsTo(models.Company, {
+      foreignKey: {
+        name: 'companyId',
+        allNull: true
+    }});
+  
     Job.belongsToMany(models.JobSeeker, {
       through: 'JobsSaved',
       foreignKey: 'jobId',
       as: 'SavedBy',
     });
+
     Job.belongsToMany(models.JobSeeker, {
       through: 'JobsApplied',
       foreignKey: 'jobId',

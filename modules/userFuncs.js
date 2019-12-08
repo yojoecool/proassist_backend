@@ -1,18 +1,37 @@
 require('dotenv').config();
 const AWS = require('aws-sdk');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const { User, JobSeeker, Company, Admin } = require('../models');
+
+const getUser = (userId) => {
+  const user = User.findOne({ where: { userId } });
+  return user;
+}
 
 const createJwt = (user) => {
   const { APP_SECRET } = process.env;
+  const tokenData = {
+    userId: user.userId,
+    email: user.email,
+    userType: user.userType
+  };
 
-  const token = jwt.sign({
-    userId: user.dataValues.userId,
-    email: user.dataValues.email,
-    userType: user.dataValues.userType
-  },
-  APP_SECRET,
-  { expiresIn: '24h' });
+  switch (user.userType) {
+    case 'Company':
+      tokenData.name = user.name;
+      tokenData.companyStatus = user.companyStatus;
+      break;
+    case 'Admin':
+    case 'JobSeeker':
+      tokenData.name = `${user.firstName} ${user.lastName}`;
+      break;
+    default:
+      tokenData.name = '';
+      break;
+  }
+
+  const token = jwt.sign(tokenData, APP_SECRET, { expiresIn: '24h' });
 
   return token;
 };
@@ -74,7 +93,7 @@ const registerUser = async (fields) => {
         `\n\tName: ${fields.firstName} ${fields.lastName}` +
         `\n\tEmail: ${fields.pocEmail}` +
         `\n\tPhone: ${fields.phoneNumber}` +
-        `\n\nNaviage to ProAssit to approve or deny the request!`,
+        `\n\nNavigate to ProAssist to approve or deny the request!`,
         'New Company Registered'
       );
       break;
@@ -91,7 +110,8 @@ const registerUser = async (fields) => {
 }
 
 const validateUser = async (email, password) => {
-  const user = await User.findOne({ where: { email }});
+  const { user, userData } = await getUserInfo(null, email);
+  console.log(userData)
   if (!user) {
     throw new Error('invalid');
   }
@@ -100,7 +120,29 @@ const validateUser = async (email, password) => {
     throw new Error('invalid');
   }
 
-  return createJwt(user);
+  return createJwt(userData);
+};
+
+const updatePassword = async (userId, fields) => {
+  const user = await User.findOne({ where: { userId }});
+  if (!user) {
+    throw new Error('User does not exist');
+  }
+  const validUser = await user.validPassword(fields.currentPassword);
+  if (!validUser) {
+    throw new Error('Current password does not match');
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hash = await bcrypt.hash(fields.password, salt);
+
+  const updatedUser = await User.update(
+    { password: hash },
+    { where: { userId } }
+  );
+  if (!updatedUser) {
+    throw new Error('User does not exist');
+  }
 };
 
 const getResumeStream = async (userId) => {
@@ -120,48 +162,97 @@ const getResumeStream = async (userId) => {
   return fileStream;
 };
 
-const getUserInfo = async (userId) => {
-  const user = await User.findOne({ where: { userId } });
+const getUserInfo = async (userId = null, email = null) => {
+  const where = {
+    ...(userId && { userId }),
+    ...(email && { email })
+  }
+
+  const user = await User.findOne({ where });
   if (!user) {
     throw new Error('User not found');
   }
 
-  const { userType, email } = user.dataValues;
-  let returnValues = { userType, email };
+  const { userType, email: confirmedEmail, userId: confirmedId } = user.dataValues;
+  let userData = { userType, email: confirmedEmail, userId: confirmedId };
+  let firstName;
+  let lastName;
 
   switch(userType) {
     case 'Admin':
+      const admin = await Admin.findOne({ where: { userId: confirmedId } });
+      ({ firstName, lastName } = admin.dataValues);
+      userData = { ...userData, firstName, lastName };
+      break;
     case 'JobSeeker':
-      const jobSeeker = await JobSeeker.findOne({ where: { userId } });
-      const { firstName, lastName } = jobSeeker.dataValues;
-      returnValues = { ...returnValues, firstName, lastName };
+      const jobSeeker = await JobSeeker.findOne({ where: { userId: confirmedId } });
+      ({ firstName, lastName } = jobSeeker.dataValues);
+      userData = { ...userData, firstName, lastName };
       break;
     case 'Company':
-      const company = await Company.findOne({ where: { userId } });
-      const { name, poc } = company.dataValues;
-      returnValues = { ...returnValues, name, poc };
+      const company = await Company.findOne({ where: { userId: confirmedId } });
+      const { name, poc, companyStatus } = company.dataValues;
+      userData = { ...userData, name, poc, companyStatus };
       break;
     default:
       break;
   }
 
-  return returnValues;
-};
+  return { user, userData };
+}
 
-const sendEmailVerify = async (email) => {
+const sendEmail = async (emails, messageText, subject) => {
+  if (typeof emails === "string") {
+    emails = [emails];
+  } else if (!Array.isArray(emails)) {
+    throw new Error("invalid array");
+  }
+
   const ses = new AWS.SES({
     accessKeyId: process.env.AWS_ACCESS,
     secretAccessKey: process.env.AWS_SECRET,
     region: 'us-east-1'
   });
 
-  // await ses.sendCustomVerificationEmail({
-  //   EmailAddress: email,
-  //   TemplateName: 'ConfirmationTemplate'
-  // }).promise();
+  const messageBody =
+    `<div style="white-space: pre-wrap;word-break: keep-all">${messageText}</div>`;
 
-  await ses.verifyEmailAddress({ EmailAddress: email }).promise();
-};
+  const params = {
+    Destination: {
+      ToAddresses: emails
+    },
+    Message: {
+      Body: {
+        Html: {
+          Charset: 'UTF-8',
+          Data: messageBody
+        }
+      },
+      Subject: {
+        Charset: 'UTF-8',
+        Data: subject
+      }
+    },
+    ReturnPath: 'admin@proassist.careers',
+    Source: 'admin@proassist.careers'
+  };
+
+  try {
+    await ses.sendEmail(params).promise();
+  } catch (err) {
+    console.log(err);
+    throw new Error("Unable to send email");
+  }
+}
+
+const updateProfile = async (userId, userType, data) => {
+  await User.update(data, { where: { userId } });
+  switch (userType) {
+    case 'JobSeeker':
+      await JobSeeker.update(data, { where: { userId } });
+      break;
+  }
+}
 
 module.exports = {
   createJwt,
@@ -170,5 +261,9 @@ module.exports = {
   getResumeStream,
   notifyAdmins,
   getUserInfo,
-  sendEmailVerify
+  updatePassword,
+  getResumeStream,
+  sendEmail,
+  getUser,
+  updateProfile
 };

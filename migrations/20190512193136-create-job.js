@@ -11,7 +11,7 @@ module.exports = {
       },
       companyId: {
         type: Sequelize.UUID,
-        allowNull: false,
+        allowNull: true,
         references: {
           model: 'Companies',
           key: 'userId',
@@ -57,6 +57,11 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Jobs');
+    return queryInterface.dropTable('Jobs')
+    .then(() => {
+      queryInterface.sequelize.query('drop type "enum_Jobs_state"');
+      queryInterface.sequelize.query('drop type "enum_Jobs_region"');
+      queryInterface.sequelize.query('drop type "enum_Jobs_type"');
+    });
   }
 };

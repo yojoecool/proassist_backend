@@ -6,7 +6,7 @@ module.exports = (req, res, next) => {
 
   try {
     if (!req.headers.authorization) {
-      throw new Error('Unauthroized');
+      throw new Error('Unauthorized');
     }
     const authArray = req.headers.authorization.split(' ');
     if (authArray.length === 2 && authArray[0] === 'Bearer') {
@@ -25,11 +25,11 @@ module.exports = (req, res, next) => {
 
       next();
     } else {
-      throw new Error('Unauthroized');
+      throw new Error('Unauthorized');
     }
   } catch (err) {
     console.log(err);
-    if (err.message === 'Unauthroized') {
+    if (err.message === 'Unauthorized') {
       res.status(403);
       res.json({
         error: 'Either your token has expired or you are not authorized to access this resouce.'
@@ -39,7 +39,7 @@ module.exports = (req, res, next) => {
       res.json({
         error: 'No token included with request.'
       });
-    }else {
+    } else {
       res.status(500);
       res.json({ error: 'There was an error processing the request.' });
     }
