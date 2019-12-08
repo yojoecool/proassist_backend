@@ -102,4 +102,16 @@ router.get('/applicants', verifyUser, verifyAdmin, async (req, res) => {
   }
 });
 
+router.post('/updateApplicantStatus', verifyUser, verifyAdmin, async (req, res) => {
+  try {
+    const { jobId, jobSeekerId, status } = req.body;
+    await jobFuncs.updateApplicantStatus(jobSeekerId, jobId, status);
+    res.send({ success: true });
+  } catch (err) {
+    console.log(err);
+    res.status(500);
+    res.json({ success: false });
+  }
+})
+
 module.exports = router;

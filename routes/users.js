@@ -136,6 +136,6 @@ router.post('/sendMessage', verifyUser, verifyAdmin, async (req, res) => {
     res.json({ error: 'Unable to send message' });
     return;
   }
-})
+});
 
 module.exports = router;

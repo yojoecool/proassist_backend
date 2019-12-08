@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Sequelize = require('sequelize');
-const { Job, JobSeeker, User } = require('../models');
+const { Job, JobSeeker, User, JobsApplied } = require('../models');
 
 const filterJobs = async (filters) => {
   const where = createFilterStatement(filters);
@@ -85,8 +85,16 @@ const applicants = async (jobId) => {
   return { applicants, job, count: applicants.length };
 }
 
+const updateApplicantStatus = async (jobSeekerId, jobId, status) => {
+  await JobsApplied.update(
+    { status },
+    { where: { jobSeekerId, jobId } }
+  );
+}
+
 module.exports = {
   filterJobs,
   userJobs,
-  applicants
+  applicants,
+  updateApplicantStatus
 };
