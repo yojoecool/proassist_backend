@@ -1,6 +1,6 @@
 require('dotenv').config();
 const express = require('express');
-const { verifyUser, s3Upload } = require('../middleware');
+const { verifyUser, verifyAdmin, s3Upload } = require('../middleware');
 const userFuncs = require('../modules/userFuncs');
 
 const router = express.Router();
@@ -113,6 +113,27 @@ router.get('/userInfo', verifyUser, async (req, res) => {
 
     res.status(500);
     res.json({ error: 'Error loading resource' });
+    return;
+  }
+});
+
+router.post('/sendMessage', verifyUser, verifyAdmin, async (req, res) => {
+  const { userId, message, subject } = req.body;
+
+  try {
+    const { email } = await userFuncs.getUser(userId);
+    await userFuncs.sendEmail(email, message, subject);
+    res.send({ success: true });
+  } catch (err) {
+    console.log(err);
+    if (err.message === 'User not found') {
+      res.status(404);
+      res.json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(500);
+    res.json({ error: 'Unable to send message' });
     return;
   }
 })

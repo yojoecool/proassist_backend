@@ -4,6 +4,11 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const { User, JobSeeker, Company, Admin } = require('../models');
 
+const getUser = (userId) => {
+  const user = User.findOne({ where: { userId } });
+  return user;
+}
+
 const createJwt = (user) => {
   const { APP_SECRET } = process.env;
   const tokenData = {
@@ -249,5 +254,6 @@ module.exports = {
   getUserInfo,
   updatePassword,
   getResumeStream,
-  sendEmail
+  sendEmail,
+  getUser
 };

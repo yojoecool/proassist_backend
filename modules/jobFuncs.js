@@ -1,6 +1,6 @@
 require('dotenv').config();
 const Sequelize = require('sequelize');
-const { Job, JobSeeker, User, JobsApplied } = require('../models');
+const { Job, JobSeeker, User } = require('../models');
 
 const filterJobs = async (filters) => {
   const where = createFilterStatement(filters);

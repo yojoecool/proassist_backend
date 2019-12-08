@@ -78,7 +78,7 @@ router.post('/unsave', verifyUser, async (req, res) => {
   }
 });
 
-router.get('/number-of-applicants', async (req, res) => {
+router.get('/number-of-applicants', verifyUser, verifyAdmin, async (req, res) => {
   try {
     const { jobId } = req.query;
     const { count } = await jobFuncs.applicants(jobId);
@@ -90,7 +90,7 @@ router.get('/number-of-applicants', async (req, res) => {
   }
 })
 
-router.get('/applicants', async (req, res) => {
+router.get('/applicants', verifyUser, verifyAdmin, async (req, res) => {
   try {
     const { jobId } = req.query;
     const returnValues = await jobFuncs.applicants(jobId);
