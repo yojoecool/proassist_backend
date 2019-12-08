@@ -245,6 +245,15 @@ const sendEmail = async (emails, messageText, subject) => {
   }
 }
 
+const updateProfile = async (userId, userType, data) => {
+  await User.update(data, { where: { userId } });
+  switch (userType) {
+    case 'JobSeeker':
+      await JobSeeker.update(data, { where: { userId } });
+      break;
+  }
+}
+
 module.exports = {
   createJwt,
   registerUser,
@@ -255,5 +264,6 @@ module.exports = {
   updatePassword,
   getResumeStream,
   sendEmail,
-  getUser
+  getUser,
+  updateProfile
 };

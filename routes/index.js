@@ -44,25 +44,4 @@ router.get('/test', async (req, res, next) => {
   }
 });
 
-router.get('/createadmin', async (req, res, next) => {
-  try {
-    const stuff = await User.create({ email: 'admin@admin.com', password: 'test', userType: 'Admin' });
-    const moreStuff = await Admin.create({ userId: stuff.userId, firstName: 'test', lastName: 'anotherTest'});
-
-  } catch (err) {
-    console.log(err);
-    res.send('error');
-  }
-});
-
-router.get('/appli', async (req, res) => {
-  try {
-    const applicants = await jobFuncs.applicants('d16afb6f-1a5c-4b5f-9595-5e5dddea23b3');
-    res.send({ success: true, data: applicants });
-  } catch (err) {
-    console.log(err);
-    res.send('error');
-  }
-})
-
 module.exports = router;

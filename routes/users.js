@@ -94,14 +94,14 @@ router.post('/uploadResume', verifyUser, s3Upload.single('file'), async (req, re
 });
 
 router.get('/userInfo', verifyUser, async (req, res) => {
-  if (req.locals.userId !== req.query.user && req.locals.userType !== 'Admin') {
+  if (req.locals.userId !== req.query.userId && req.locals.userType !== 'Admin') {
     res.status(403);
     res.json({ success: false });
     return;
   }
 
   try {
-    const { userData } = await userFuncs.getUserInfo(req.locals.userId);
+    const { userData } = await userFuncs.getUserInfo(req.query.userId);
     res.json(userData);
   } catch (err) {
     console.log(err);
@@ -137,5 +137,25 @@ router.post('/sendMessage', verifyUser, verifyAdmin, async (req, res) => {
     return;
   }
 });
+
+router.post('/updateProfile', verifyUser, async (req, res) => {
+  const { userId, userType, ...data } = req.body;
+
+  try {
+    await userFuncs.updateProfile(userId, userType, data);
+    res.send({ success: true });
+  } catch (err) {
+    console.log(err);
+    if (err.message === 'User not found') {
+      res.status(404);
+      res.json({ error: 'User not found' });
+      return;
+    }
+
+    res.status(500);
+    res.json({ error: 'Unable update user' });
+    return;
+  }
+})
 
 module.exports = router;
