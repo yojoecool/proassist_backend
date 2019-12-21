@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       primaryKey: true,
     },
     companyId: DataTypes.UUID,
-    description: DataTypes.STRING,
+    description: DataTypes.TEXT,
     skills: DataTypes.ARRAY(DataTypes.STRING),
     title: DataTypes.STRING,
     city: DataTypes.STRING,
