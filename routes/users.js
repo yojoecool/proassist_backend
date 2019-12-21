@@ -35,11 +35,11 @@ router.put('/updatePassword', verifyUser, async (req, res) => {
     console.log(err)
     if (err.message === 'Current password does not match') {
       res.status(403);
-    } else if (err.message === 'User does not exist'){
+    } else if (err.message === 'User does not exist') {
       res.status(404);
     } else {
       res.status(500);
-    }    
+    }
     res.json({ success: false });
   }
 });

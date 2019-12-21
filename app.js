@@ -26,4 +26,8 @@ app.use('/api/v1/companies', companiesRouter);
 app.use('/api/v1/careers', jobsRouter);
 
 module.exports = app;
-module.exports.handler = serverless(app);
+module.exports.handler = serverless(app, {
+    binary: [
+        'application/pdf', 'application/json', 'image/*', 'application/octet-stream'
+    ]
+});

@@ -21,8 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     userType: {
       type: DataTypes.ENUM,
       values: userTypes,
-    },
-    verified: DataTypes.BOOLEAN
+    }
   }, {});
 
   User.beforeCreate(async (user) => {
