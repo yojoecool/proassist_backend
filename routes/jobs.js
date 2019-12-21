@@ -1,15 +1,14 @@
 require('dotenv').config();
 const express = require('express');
-const { JobsApplied, JobsSaved, Job } = require('../models');
+const { JobsApplied, JobsSaved } = require('../models');
 const jobFuncs = require('../modules/jobFuncs');
 const { verifyUser, verifyAdmin } = require('../middleware');
 
 const router = express.Router();
 
-router.get('/', async (req, res) => {
+router.post('/', async (req, res) => {
   try {
-    const filters = req.query.filters ? req.query.filters : '{}';
-    const jobs = await jobFuncs.filterJobs(JSON.parse(filters));
+    const jobs = await jobFuncs.filterJobs(req.body.filters);
     res.json(jobs);
   } catch (err) {
     console.log(err);

@@ -3,8 +3,8 @@ const express = require('express');
 
 const router = express.Router();
 
-router.get('/', async (req, res, next) => {
-  res.send('success');
+router.get('/', async (_, res) => {
+    res.send('success');
 });
 
 
